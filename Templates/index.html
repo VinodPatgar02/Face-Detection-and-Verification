@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2b6cb0;
+            --secondary-color: #1a365d;
+            --accent-color: #3182ce;
+            --background-color: #f7fafc;
+            --card-bg: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --success-color: #48bb78;
+            --error-color: #f56565;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--background-color) 0%, #edf2f7 100%);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--secondary-color);
+        }
+
+        .verification-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 1rem 1rem 0 0;
+        }
+
+        .capture-container {
+            padding: 2rem;
+        }
+
+        #webcam {
+            width: 100%;
+            max-width: 640px;
+            border-radius: 0.5rem;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            border-radius: 0.5rem;
+            display: none;
+            margin: 1rem auto;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--accent-color);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 1rem 0;
+        }
+
+        .upload-zone:hover {
+            background: rgba(49, 130, 206, 0.05);
+        }
+
+        .btn-verify {
+            background: var(--accent-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 600;
+            margin: 1rem;
+        }
+
+        .btn-verify:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .confidence-bar {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            margin-top: 0.5rem;
+        }
+
+        .confidence-level {
+            height: 100%;
+            background: var(--success-color);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .mode-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1 class="page-title">
+            <i class="fas fa-user-check"></i>
+            Verification System
+        </h1>
+
+        <div class="verification-card">
+            <div class="card-header">
+                <i class="fas fa-camera"></i>
+                Face Capture & Verification
+            </div>
+            
+            <div class="capture-container">                
+                <div class="mode-buttons">
+                    <button id="uploadModeBtn" class="btn btn-verify active">
+                        <i class="fas fa-upload"></i> Upload Image
+                    </button>
+                    <button id="cameraModeBtn" class="btn btn-verify">
+                        <i class="fas fa-camera"></i> Use Camera
+                    </button>
+                </div>
+
+                <div id="uploadSection">
+                    <div class="upload-zone" id="uploadZone">
+                        <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+                        <h4>Drop your image here or click to upload</h4>
+                        <p class="text-muted">Supports JPG, PNG (Max 5MB)</p>
+                        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                    </div>
+                </div>
+
+                <div id="cameraSection" style="display: none;">
+                    <video id="webcam" autoplay playsinline></video>
+                    <button id="captureBtn" class="btn btn-verify">
+                        <i class="fas fa-camera"></i> Capture
+                    </button>
+                </div>
+
+                <img id="preview" class="preview-image" alt="Preview">
+                
+                <div id="retakeContainer" style="display: none; text-align: center;">
+                    <button id="retakeBtn" class="btn btn-verify">
+                        <i class="fas fa-redo"></i> Retake
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="result"></div>
+        <div class="form-group">
+            <label for="staffId">Staff ID</label>
+            <input type="text" id="staffId" class="form-control" placeholder="Staff ID" readonly>
+        </div>
+        <div class="form-group">
+            <label for="batchNo">Batch Number</label>
+            <input type="text" id="batchNo" class="form-control" placeholder="Batch Number" readonly>
+        </div>
+    </div>
+    
+
+    <div class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+<script>
+    let stream = null;
+    
+    // DOM Elements
+    const uploadModeBtn = document.getElementById('uploadModeBtn');
+    const cameraModeBtn = document.getElementById('cameraModeBtn');
+    const uploadSection = document.getElementById('uploadSection');
+    const cameraSection = document.getElementById('cameraSection');
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('fileInput');
+    const webcam = document.getElementById('webcam');
+    const captureBtn = document.getElementById('captureBtn');
+    const retakeBtn = document.getElementById('retakeBtn');
+    const preview = document.getElementById('preview');
+    const retakeContainer = document.getElementById('retakeContainer');
+
+    // Image compression function
+    
+    async function compressImage(file) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const img = new Image();
+            img.onload = async function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                
+                // More aggressive compression for mobile cameras
+                const MAX_SIZE = 800;
+                if (width > height && width > MAX_SIZE) {
+                    height *= MAX_SIZE / width;
+                    width = MAX_SIZE;
+                } else if (height > MAX_SIZE) {
+                    width *= MAX_SIZE / height;
+                    height = MAX_SIZE;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Convert to Blob with quality adjustment
+                canvas.toBlob(blob => {
+                    resolve(URL.createObjectURL(blob));
+                }, 'image/jpeg', 0.7);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+    // Reset function
+    function resetInterface() {
+        uploadZone.style.display = 'block';
+        preview.style.display = 'none';
+        retakeContainer.style.display = 'none';
+        document.getElementById('result').innerHTML = '';
+        fileInput.value = '';
+    }
+
+    // Mode switching
+    uploadModeBtn.addEventListener('click', () => {
+        uploadSection.style.display = 'block';
+        cameraSection.style.display = 'none';
+        resetInterface();
+        stopCamera();
+    });
+
+    cameraModeBtn.addEventListener('click', async () => {
+        uploadSection.style.display = 'none';
+        cameraSection.style.display = 'block';
+        preview.style.display = 'none';
+        retakeContainer.style.display = 'none';
+        await startCamera();
+    });
+
+    // File Upload Handling
+    uploadZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadZone.style.borderColor = '#2b6cb0';
+    });
+
+    uploadZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadZone.style.borderColor = '#3182ce';
+    });
+
+    uploadZone.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const files = e.dataTransfer.files;
+        if (files.length) {
+            await handleFile(files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', async (e) => {
+        if (e.target.files.length) {
+            await handleFile(e.target.files[0]);
+        }
+    });
+
+    // Camera Handling
+    async function startCamera() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: "user" } 
+            });
+            webcam.srcObject = stream;
+            await webcam.play();
+        } catch (err) {
+            showError("Camera access denied. Please check permissions.");
+            console.error('Camera error:', err);
+        }
+    }
+
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+    }
+
+    captureBtn.addEventListener('click', async () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = webcam.videoWidth;
+    canvas.height = webcam.videoHeight;
+    canvas.getContext('2d').drawImage(webcam, 0, 0);
+
+    // Convert canvas to base64
+    const base64 = canvas.toDataURL('image/jpeg', 0.9);
+    preview.src = base64;
+    preview.style.display = 'block';
+    cameraSection.style.display = 'none';
+    retakeContainer.style.display = 'block';
+
+    // Send to the API
+    await processVerification(base64);
+});
+
+
+    // Retake Button
+    retakeBtn.addEventListener('click', async () => {
+        if (uploadSection.style.display === 'block') {
+            resetInterface();
+        } else {
+            preview.style.display = 'none';
+            retakeContainer.style.display = 'none';
+            cameraSection.style.display = 'block';
+            document.getElementById('result').innerHTML = '';
+            await startCamera();
+        }
+        document.getElementById('staffId').value = '';
+        document.getElementById('batchNo').value = '';
+    });
+
+    async function handleFile(file) {
+        if (!file.type.startsWith('image/')) {
+            showError("Please select an image file");
+            return;
+        }
+
+        try {
+            const compressedImage = await compressImage(file);
+            preview.src = compressedImage;
+            preview.style.display = 'block';
+            uploadZone.style.display = 'none';
+            retakeContainer.style.display = 'block';
+            processVerification(compressedImage);
+        } catch (error) {
+            showError("Error processing image: " + error.message);
+        }
+    }
+
+    async function processVerification(imageData) {
+    document.querySelector('.loading-overlay').style.display = 'flex';
+
+    try {
+        // Convert data URL to Blob
+        const blob = await (await fetch(imageData)).blob();
+
+        // Create FormData and append the image
+        const formData = new FormData();
+        formData.append('image', blob, 'capture.jpg');
+
+        const response = await fetch('/verify', {
+            method: 'POST',
+            headers: {
+                'x-api-key': 'f39c6a2f3f3cbe648f99b9c189d3cc99d19865ed4955076c69'
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            if (response.status === 400) {
+                // Assuming status 400 means no match or no face
+                showError("No matches found.");
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return;
+        }
+
+        const data = await response.json();
+        if (data.error) {
+            showError(data.error);
+        } else {
+            showResult(data);
+        }
+    } catch (error) {
+        showError("Verification failed: " + error.message);
+    } finally {
+        document.querySelector('.loading-overlay').style.display = 'none';
+    }
+}
+
+function showResult(data) {
+    const resultDiv = document.getElementById('result');
+    const staffIdField = document.getElementById('staffId');
+    const batchNoField = document.getElementById('batchNo');
+    const matches = data.result;
+    
+    let html = `
+        <div class="result-card">
+            <h4>${matches.length ? 'Match Found' : 'No Match Found'}</h4>
+            <ul class="list-group">
+    `;
+
+    if (matches.length) {
+        const matchedStaff = matches[0].name; // Assuming the API returns the matched name
+
+        // Display staff details
+        html += `<li class="list-group-item"><strong>Matched Name:</strong> ${matchedStaff}</li>`;
+
+        // Populate the fields using the `staff_details` object
+        const staffDetails = {
+            "vinod": { "Staff ID": "EMP001", "Batch Number": "Batch123" },
+            "pavan": { "Staff ID": "EMP002", "Batch Number": "Batch456" },
+            // Add more staff details as needed
+        };
+
+        if (staffDetails[matchedStaff]) {
+            staffIdField.value = staffDetails[matchedStaff]["Staff ID"];
+            batchNoField.value = staffDetails[matchedStaff]["Batch Number"];
+        } else {
+            staffIdField.value = "Unknown";
+            batchNoField.value = "Unknown";
+        }
+    } else {
+        staffIdField.value = "";
+        batchNoField.value = "";
+    }
+
+    html += '</ul></div>';
+    resultDiv.innerHTML = html;
+}
+
+
+function showError(message) {
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+        <div class="alert alert-danger" role="alert">
+            ${message}
+        </div>
+    `;
+}
+
+</script>
+</body>
+</html>

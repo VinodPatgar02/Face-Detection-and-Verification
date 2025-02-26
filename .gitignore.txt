@@ -1,0 +1,19 @@
+# Ignore reference images folder
+reference_images/
+
+# Ignore environment variables file
+.env
+
+# Ignore Python cache & virtual environment
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+facef/  # If your virtual environment is inside the project
+
+# Ignore log files
+*.log
+
+# Ignore large downloaded models (optional)
+*.onnx
+*.pth
