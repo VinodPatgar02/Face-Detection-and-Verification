@@ -4,7 +4,8 @@ import numpy as np
 import torch
 import time
 import base64
-from flask import Flask, jsonify, request, render_template
+import json
+from flask import Flask, jsonify, request, render_template, send_from_directory
 from facenet_pytorch import MTCNN, InceptionResnetV1
 from torchvision import transforms
 from PIL import Image
@@ -19,10 +20,14 @@ API_KEY = os.getenv("API_KEY")  # Get the API key from the environment variable
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(app, resources={r"/verify": {"origins": "http://127.0.0.1:5000"}})
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
-app.config['REFERENCE_FOLDER'] = 'reference_images'
+app.config['UPLOAD_FOLDER'] = os.getenv("UPLOAD_FOLDER", "static/uploads")
+app.config['REFERENCE_FOLDER'] = os.getenv("REFERENCE_FOLDER", "reference_images")
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
-app.config['MAX_CONTENT_LENGTH'] =  10* 1024 * 1024  # 10MB Max File Size
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB Max File Size
+
+# Load staff details from JSON file
+with open("staff_details.json", "r") as f:
+    staff_details = json.load(f)
 
 # Ensure necessary directories exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -42,12 +47,6 @@ transform = transforms.Compose([
 ])
 
 THRESHOLD = 0.7
-
-# Staff Details Mapping (Map reference photo names to staff details)
-staff_details = {
-    "vinod": {"Staff ID": "EMP001", "Batch Number": "Batch123"},
-    "pavan": {"Staff ID": "EMP002", "Batch Number": "Batch456"},
-}
 
 # Load Reference Faces
 reference_db = {}
@@ -77,6 +76,10 @@ def require_api_key(f):
 def index():
     return render_template('index.html')
 
+@app.route('/models/<path:filename>')
+def serve_models(filename):
+    return send_from_directory(os.path.join(app.root_path, 'models'), filename)
+
 @app.route('/verify', methods=['POST'])
 @require_api_key  # This will enforce API key checking on the verify route
 def verify():
@@ -84,6 +87,8 @@ def verify():
         # Handle direct file uploads
         if 'image' in request.files:
             img_file = request.files['image']
+            if not img_file.filename.lower().endswith(tuple(app.config['ALLOWED_EXTENSIONS'])):
+                return jsonify({'error': 'Invalid file type. Only JPG, PNG, and JPEG are allowed.'}), 400
             img_bytes = img_file.read()
         else:
             # Handle base64 URL
@@ -144,7 +149,8 @@ def verify():
         return jsonify({'result': [], 'error': 'No match found'}), 200
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        app.logger.error(f"Error in /verify: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, threaded=True)

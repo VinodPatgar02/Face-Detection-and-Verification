@@ -8,29 +8,36 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #2b6cb0;
-            --secondary-color: #1a365d;
-            --accent-color: #3182ce;
-            --background-color: #f7fafc;
-            --card-bg: #ffffff;
-            --text-primary: #2d3748;
-            --text-secondary: #4a5568;
-            --success-color: #48bb78;
-            --error-color: #f56565;
+            --primary-color: #2b6cb0;        /* Vibrant blue */
+            --secondary-color: #1a365d;      /* Deeper blue */
+            --accent-color: #1e40af;         /* Dark blue */
+            --background-color: #f0f9ff;     /* Light blue background */
+            --card-bg: #ffffff;              /* Pure white card background */
+            --text-primary: #1e293b;         /* Dark slate gray */
+            --text-secondary: #475569;       /* Slate gray */
+            --success-color: #10b981;        /* Emerald green */
+            --error-color: #ef4444;          /* Soft red */
+            --gradient-start: #3b82f6;       /* Blue gradient start */
+            --gradient-end: #2563eb;         /* Blue gradient end */
         }
 
         body {
-            background: linear-gradient(135deg, var(--background-color) 0%, #edf2f7 100%);
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--background-color) 0%, #e0f2fe 100%);
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: var(--text-primary);
             min-height: 100vh;
-            padding: 2rem 0;
+            padding: 3rem 0;
+            line-height: 1.6;
         }
 
         .main-container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
+            border-radius: 2rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 30px 45px rgba(0, 0, 0, 0.05);
         }
 
         .page-title {
@@ -38,69 +45,112 @@
             font-weight: 800;
             text-align: center;
             margin-bottom: 2rem;
-            color: var(--secondary-color);
+            color: var(--accent-color);
+            text-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
         }
 
         .verification-card {
             background: var(--card-bg);
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
+            border-radius: 2rem;
+            box-shadow: 0 25px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid rgba(59, 130, 246, 0.1);
         }
 
         .card-header {
             background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
             color: white;
             padding: 1.5rem;
-            border-radius: 1rem 1rem 0 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 600;
+        }
+
+        .card-header i {
+            font-size: 1.5rem;
         }
 
         .capture-container {
             padding: 2rem;
         }
 
-        #webcam {
-            width: 100%;
-            max-width: 640px;
-            border-radius: 0.5rem;
-            margin: 0 auto;
-            display: block;
-        }
-
-        .preview-image {
-            max-width: 100%;
-            border-radius: 0.5rem;
-            display: none;
-            margin: 1rem auto;
-        }
-
-        .upload-zone {
-            border: 2px dashed var(--accent-color);
-            border-radius: 0.5rem;
-            padding: 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin: 1rem 0;
-        }
-
-        .upload-zone:hover {
-            background: rgba(49, 130, 206, 0.05);
+        .mode-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .btn-verify {
-            background: var(--accent-color);
+            background: var(--primary-color);
             color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
             border: none;
-            font-weight: 600;
-            margin: 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .btn-verify:hover {
+            background: #265eac;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-verify.active {
             background: var(--primary-color);
             color: white;
+            border: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-verify.active:hover {
+            background: #265eac;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--primary-color);
+            border-radius: 1rem;
+            padding: 2.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(59, 130, 246, 0.02);
+        }
+
+        .upload-zone:hover {
+            background: rgba(59, 130, 246, 0.05);
+            border-color: var(--secondary-color);
+        }
+
+        #webcam {
+            max-width: 460px;
+            width: 100%;
+            border-radius: 1rem;
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            display: block;
+        }
+        .preview-image {
+            max-width: 460px;
+            border-radius: 0.5rem;
+            display: none;
+            margin: 1rem auto;
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            background: linear-gradient(to right, rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.1));
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            box-shadow: 0 30px 40px rgba(0, 0, 0, 0.1);
         }
 
         .loading-overlay {
@@ -117,10 +167,10 @@
         }
 
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--accent-color);
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--primary-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -131,39 +181,41 @@
         }
 
         .result-card {
-            background: white;
-            border-radius: 0.5rem;
+            background: linear-gradient(to right, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.2));
+            border-radius: 1rem;
             padding: 1.5rem;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            box-shadow: 0 30px 40px rgba(0, 0, 0, 0.1);
         }
 
-        .confidence-bar {
-            height: 6px;
-            background: #e2e8f0;
-            border-radius: 3px;
-            margin-top: 0.5rem;
+        .list-group-item {
+            background: transparent;
+            border: none;
+            padding: 0.75rem 0;
+            color: var(--text-primary);
         }
 
-        .confidence-level {
-            height: 100%;
-            background: var(--success-color);
-            border-radius: 3px;
-            transition: width 0.3s ease;
-        }
-
-        .mode-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
+        .alert-danger {
+            background-color: var(--error-color);
+            color: white;
+            border: none;
+            padding: 1rem;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
 <body>
     <div class="main-container">
         <h1 class="page-title">
-            <i class="fas fa-user-check"></i>
-            Verification System
+            <i class="fas fa-user"></i>
+            FaceX
         </h1>
 
         <div class="verification-card">
@@ -193,28 +245,20 @@
 
                 <div id="cameraSection" style="display: none;">
                     <video id="webcam" autoplay playsinline></video>
-                    <button id="captureBtn" class="btn btn-verify">
-                        <i class="fas fa-camera"></i> Capture
-                    </button>
                 </div>
 
                 <img id="preview" class="preview-image" alt="Preview">
                 
                 <div id="retakeContainer" style="display: none; text-align: center;">
-                    <button id="retakeBtn" class="btn btn-verify">
-                        <i class="fas fa-redo"></i> Retake
-                    </button>
                 </div>
             </div>
         </div>
 
         <div id="result"></div>
         <div class="form-group">
-            <label for="staffId">Staff ID</label>
+            <label for="staffId"><strong>Staff ID</strong></label>
             <input type="text" id="staffId" class="form-control" placeholder="Staff ID" readonly>
-        </div>
-        <div class="form-group">
-            <label for="batchNo">Batch Number</label>
+            <label for="batchNo"><strong>Batch Number</strong></label>
             <input type="text" id="batchNo" class="form-control" placeholder="Batch Number" readonly>
         </div>
     </div>
@@ -222,285 +266,317 @@
 
     <div class="loading-overlay">
         <div class="spinner"></div>
-    </div>
+    </div> <script src="https://cdn.jsdelivr.net/npm/face-api.js/dist/face-api.min.js"></script>
 
-<script>
-    let stream = null;
-    
-    // DOM Elements
-    const uploadModeBtn = document.getElementById('uploadModeBtn');
-    const cameraModeBtn = document.getElementById('cameraModeBtn');
-    const uploadSection = document.getElementById('uploadSection');
-    const cameraSection = document.getElementById('cameraSection');
-    const uploadZone = document.getElementById('uploadZone');
-    const fileInput = document.getElementById('fileInput');
-    const webcam = document.getElementById('webcam');
-    const captureBtn = document.getElementById('captureBtn');
-    const retakeBtn = document.getElementById('retakeBtn');
-    const preview = document.getElementById('preview');
-    const retakeContainer = document.getElementById('retakeContainer');
+    <script>
+        let stream = null;
+        let faceDetectionInterval = null;
+        let isProcessing = false; // To avoid multiple verifications at the same time
+        let isVerified = false; // To track if the current face is verified
+        let faceDescriptorHistory = []; // To track face descriptors for liveliness detection
+        
+        // DOM Elements
+        const uploadModeBtn = document.getElementById('uploadModeBtn');
+        const cameraModeBtn = document.getElementById('cameraModeBtn');
+        const uploadSection = document.getElementById('uploadSection');
+        const cameraSection = document.getElementById('cameraSection');
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const webcam = document.getElementById('webcam');
+        const preview = document.getElementById('preview');
+        const retakeContainer = document.getElementById('retakeContainer');
 
-    // Image compression function
-    
-    async function compressImage(file) {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            const img = new Image();
-            img.onload = async function() {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-                
-                // More aggressive compression for mobile cameras
-                const MAX_SIZE = 800;
-                if (width > height && width > MAX_SIZE) {
-                    height *= MAX_SIZE / width;
-                    width = MAX_SIZE;
-                } else if (height > MAX_SIZE) {
-                    width *= MAX_SIZE / height;
-                    height = MAX_SIZE;
-                }
-                
-                canvas.width = width;
-                canvas.height = height;
-                
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                
-                // Convert to Blob with quality adjustment
-                canvas.toBlob(blob => {
-                    resolve(URL.createObjectURL(blob));
-                }, 'image/jpeg', 0.7);
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-    // Reset function
-    function resetInterface() {
-        uploadZone.style.display = 'block';
-        preview.style.display = 'none';
-        retakeContainer.style.display = 'none';
-        document.getElementById('result').innerHTML = '';
-        fileInput.value = '';
-    }
-
-    // Mode switching
-    uploadModeBtn.addEventListener('click', () => {
-        uploadSection.style.display = 'block';
-        cameraSection.style.display = 'none';
-        resetInterface();
-        stopCamera();
-    });
-
-    cameraModeBtn.addEventListener('click', async () => {
-        uploadSection.style.display = 'none';
-        cameraSection.style.display = 'block';
-        preview.style.display = 'none';
-        retakeContainer.style.display = 'none';
-        await startCamera();
-    });
-
-    // File Upload Handling
-    uploadZone.addEventListener('click', () => {
-        fileInput.click();
-    });
-
-    uploadZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        uploadZone.style.borderColor = '#2b6cb0';
-    });
-
-    uploadZone.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        uploadZone.style.borderColor = '#3182ce';
-    });
-
-    uploadZone.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const files = e.dataTransfer.files;
-        if (files.length) {
-            await handleFile(files[0]);
+        // Load face-api.js models
+        async function loadModels() {
+            await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+            await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+            await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+            await faceapi.nets.faceExpressionNet.loadFromUri('/models');
         }
-    });
 
-    fileInput.addEventListener('change', async (e) => {
-        if (e.target.files.length) {
-            await handleFile(e.target.files[0]);
-        }
-    });
-
-    // Camera Handling
-    async function startCamera() {
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "user" } 
-            });
-            webcam.srcObject = stream;
-            await webcam.play();
-        } catch (err) {
-            showError("Camera access denied. Please check permissions.");
-            console.error('Camera error:', err);
-        }
-    }
-
-    function stopCamera() {
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-            stream = null;
-        }
-    }
-
-    captureBtn.addEventListener('click', async () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = webcam.videoWidth;
-    canvas.height = webcam.videoHeight;
-    canvas.getContext('2d').drawImage(webcam, 0, 0);
-
-    // Convert canvas to base64
-    const base64 = canvas.toDataURL('image/jpeg', 0.9);
-    preview.src = base64;
-    preview.style.display = 'block';
-    cameraSection.style.display = 'none';
-    retakeContainer.style.display = 'block';
-
-    // Send to the API
-    await processVerification(base64);
-});
-
-
-    // Retake Button
-    retakeBtn.addEventListener('click', async () => {
-        if (uploadSection.style.display === 'block') {
-            resetInterface();
-        } else {
+        // Reset function
+        function resetInterface() {
+            uploadZone.style.display = 'block';
             preview.style.display = 'none';
             retakeContainer.style.display = 'none';
-            cameraSection.style.display = 'block';
             document.getElementById('result').innerHTML = '';
-            await startCamera();
-        }
-        document.getElementById('staffId').value = '';
-        document.getElementById('batchNo').value = '';
-    });
-
-    async function handleFile(file) {
-        if (!file.type.startsWith('image/')) {
-            showError("Please select an image file");
-            return;
+            fileInput.value = '';
+            document.getElementById('staffId').value = '';
+            document.getElementById('batchNo').value = '';
+            isVerified = false; 
         }
 
-        try {
-            const compressedImage = await compressImage(file);
-            preview.src = compressedImage;
-            preview.style.display = 'block';
-            uploadZone.style.display = 'none';
-            retakeContainer.style.display = 'block';
-            processVerification(compressedImage);
-        } catch (error) {
-            showError("Error processing image: " + error.message);
-        }
-    }
-
-    async function processVerification(imageData) {
-    document.querySelector('.loading-overlay').style.display = 'flex';
-
-    try {
-        // Convert data URL to Blob
-        const blob = await (await fetch(imageData)).blob();
-
-        // Create FormData and append the image
-        const formData = new FormData();
-        formData.append('image', blob, 'capture.jpg');
-
-        const response = await fetch('/verify', {
-            method: 'POST',
-            headers: {
-                'x-api-key': 'f39c6a2f3f3cbe648f99b9c189d3cc99d19865ed4955076c69'
-            },
-            body: formData
+        // Mode switching
+        uploadModeBtn.addEventListener('click', () => {
+            uploadSection.style.display = 'block';
+            cameraSection.style.display = 'none';
+            resetInterface();
+            stopCamera();
         });
 
-        if (!response.ok) {
-            if (response.status === 400) {
-                // Assuming status 400 means no match or no face
-                showError("No matches found.");
-            } else {
-                throw new Error(`HTTP error! status: ${response.status}`);
+        cameraModeBtn.addEventListener('click', async () => {
+            uploadSection.style.display = 'none';
+            cameraSection.style.display = 'block';
+            preview.style.display = 'none';
+            retakeContainer.style.display = 'none';
+            await loadModels(); 
+            await startCamera();
+        });
+
+        // File Upload Handling
+        uploadZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadZone.style.borderColor = '#2b6cb0';
+        });
+
+        uploadZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadZone.style.borderColor = '#3182ce';
+        });
+
+        uploadZone.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const files = e.dataTransfer.files;
+            if (files.length) {
+                await handleFile(files[0]);
             }
-            return;
+        });
+
+        fileInput.addEventListener('change', async (e) => {
+            if (e.target.files.length) {
+                await handleFile(e.target.files[0]);
+            }
+        });
+
+        // Camera Handling
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "user" } 
+                });
+                webcam.srcObject = stream;
+                await webcam.play();
+                startFaceDetection();
+            } catch (err) {
+                showError("Camera access denied. Please check permissions.");
+                console.error('Camera error:', err);
+            }
         }
 
-        const data = await response.json();
-        if (data.error) {
-            showError(data.error);
-        } else {
-            showResult(data);
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            stopFaceDetection();
         }
-    } catch (error) {
-        showError("Verification failed: " + error.message);
-    } finally {
-        document.querySelector('.loading-overlay').style.display = 'none';
-    }
-}
 
-function showResult(data) {
-    const resultDiv = document.getElementById('result');
-    const staffIdField = document.getElementById('staffId');
-    const batchNoField = document.getElementById('batchNo');
-    const matches = data.result;
-    
-    let html = `
-        <div class="result-card">
-            <h4>${matches.length ? 'Match Found' : 'No Match Found'}</h4>
-            <ul class="list-group">
-    `;
+        // Face Detection Logic
+        async function startFaceDetection() {
+            faceDetectionInterval = setInterval(async () => {
+                if (isProcessing) return; // Skip if already processing
 
-    if (matches.length) {
-        const matchedStaff = matches[0].name; // Assuming the API returns the matched name
+                const detections = await faceapi.detectAllFaces(webcam, new faceapi.TinyFaceDetectorOptions())
+                    .withFaceLandmarks()
+                    .withFaceDescriptors();
 
-        // Display staff details
-        html += `<li class="list-group-item"><strong>Matched Name:</strong> ${matchedStaff}</li>`;
+                if (detections.length > 0) {
+                    if (!isVerified) {
+                        // Liveliness Detection: Check for subtle changes in the face
+                        const currentFaceDescriptor = detections[0].descriptor;
 
-        // Populate the fields using the `staff_details` object
-        const staffDetails = {
-            "vinod": { "Staff ID": "EMP001", "Batch Number": "Batch123" },
-            "pavan": { "Staff ID": "EMP002", "Batch Number": "Batch456" },
-            // Add more staff details as needed
-        };
+                        if (faceDescriptorHistory.length > 0) {
+                            const previousFaceDescriptor = faceDescriptorHistory[faceDescriptorHistory.length - 1];
+                            const distance = faceapi.euclideanDistance(currentFaceDescriptor, previousFaceDescriptor);
 
-        if (staffDetails[matchedStaff]) {
-            staffIdField.value = staffDetails[matchedStaff]["Staff ID"];
-            batchNoField.value = staffDetails[matchedStaff]["Batch Number"];
-        } else {
-            staffIdField.value = "Unknown";
-            batchNoField.value = "Unknown";
+                            
+                        }
+
+                        // Store the current face descriptor for liveliness detection
+                        faceDescriptorHistory.push(currentFaceDescriptor);
+                        if (faceDescriptorHistory.length > 5) {
+                            faceDescriptorHistory.shift(); // Keep only the last 5 descriptors
+                        }
+
+                        // Capture the face
+                        const canvas = document.createElement('canvas');
+                        canvas.width = webcam.videoWidth;
+                        canvas.height = webcam.videoHeight;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+
+                        const base64 = canvas.toDataURL('image/jpeg', 0.9);
+                        preview.src = base64;
+                        preview.style.display = 'block';
+                        cameraSection.style.display = 'none';
+                        retakeContainer.style.display = 'block';
+
+                        // Send to the API for verification
+                        isProcessing = true;
+                        await processVerification(base64);
+                        isProcessing = false;
+                        isVerified = true; // Mark the face as verified
+                    }
+                } else {
+                    // No face detected, clear the preview and fields
+                    preview.style.display = 'none';
+                    retakeContainer.style.display = 'none';
+                    cameraSection.style.display = 'block';
+                    document.getElementById('result').innerHTML = '';
+                    document.getElementById('staffId').value = '';
+                    document.getElementById('batchNo').value = '';
+                    isVerified = false; // Reset verification status
+                    faceDescriptorHistory = []; // Clear face descriptor history
+                }
+            }, 1000); // Check every 1 second
         }
-    } else {
-        staffIdField.value = "";
-        batchNoField.value = "";
-    }
 
-    html += '</ul></div>';
-    resultDiv.innerHTML = html;
+        function stopFaceDetection() {
+            if (faceDetectionInterval) {
+                clearInterval(faceDetectionInterval);
+                faceDetectionInterval = null;
+            }
+        }
+
+        // Retake Button
+        retakeBtn.addEventListener('click', async () => {
+            if (uploadSection.style.display === 'block') {
+                resetInterface();
+            } else {
+                preview.style.display = 'none';
+                retakeContainer.style.display = 'none';
+                cameraSection.style.display = 'block';
+                document.getElementById('result').innerHTML = '';
+                await startCamera();
+            }
+            document.getElementById('staffId').value = '';
+            document.getElementById('batchNo').value = '';
+        });
+
+        // Fixed Photo Uploading
+        async function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showError("Please select an image file");
+                return;
+            }
+
+            try {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = async () => {
+                    const imageData = reader.result;
+                    preview.src = imageData;
+                    preview.style.display = 'block';
+                    uploadZone.style.display = 'none';
+                    retakeContainer.style.display = 'block';
+                    await processVerification(imageData);
+                };
+            } catch (error) {
+                showError("Error processing image: " + error.message);
+            }
+        }
+
+        async function processVerification(imageData) {
+            document.querySelector('.loading-overlay').style.display = 'flex';
+
+            try {
+                // Convert data URL to Blob
+                const blob = await (await fetch(imageData)).blob();
+
+                // Create FormData and append the image
+                const formData = new FormData();
+                formData.append('image', blob, 'capture.jpg');
+
+                const response = await fetch('/verify', {
+                    method: 'POST',
+                    headers: {
+                        'x-api-key': '' //add your api key here
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    if (response.status === 400) {
+                        
+                        showError("No match found.");
+                    } else {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return;
+                }
+
+                const data = await response.json();
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    showResult(data);
+                }
+            } catch (error) {
+                showError("Verification failed: " + error.message);
+            } finally {
+                document.querySelector('.loading-overlay').style.display = 'none';
+            }
+        }
+
+        function showResult(data) {
+            const resultDiv = document.getElementById('result');
+            const staffIdField = document.getElementById('staffId');
+            const batchNoField = document.getElementById('batchNo');
+            const matches = data.result;
+            
+            let html = `
+                <div class="result-card">
+                    <h4>${matches.length ? 'Match Found' : 'No Match Found'}</h4>
+                    <ul class="list-group">
+            `;
+
+            if (matches.length) {
+                const matchedStaff = matches[0].name; // Assuming the API returns the matched name
+
+                // Display staff details
+                html += `<li class="list-group-item"><strong>Matched Name:</strong> ${matchedStaff}</li>`;
+
+                if (data.staff_details) {
+                    staffIdField.value = data.staff_details["Staff ID"];
+                    batchNoField.value = data.staff_details["Batch Number"];
+                } else {
+                    staffIdField.value = "Unknown";
+                    batchNoField.value = "Unknown";
+                }
+            } else {
+                staffIdField.value = "";
+                batchNoField.value = "";
+            }
+
+            html += '</ul></div>';
+            resultDiv.innerHTML = html;
+        }
+
+        function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-danger';
+    errorDiv.role = 'alert';
+    errorDiv.style.position = 'fixed';
+    errorDiv.style.top = '0';
+    errorDiv.style.left = '0';
+    errorDiv.style.right = '0';
+    errorDiv.style.zIndex = '1000';
+    errorDiv.style.textAlign = 'center';
+    errorDiv.style.backgroundColor = 'red'; // Correctly applied to errorDiv
+    errorDiv.innerHTML = message;
+    document.body.appendChild(errorDiv);
+    setTimeout(() => {
+        errorDiv.remove();
+    }, 3000); // Remove after 5 seconds
 }
 
-
-function showError(message) {
-    const resultDiv = document.getElementById('result');
-    resultDiv.innerHTML = `
-        <div class="alert alert-danger" role="alert">
-            ${message}
-        </div>
-    `;
-}
-
-</script>
+    </script>
 </body>
 </html>
